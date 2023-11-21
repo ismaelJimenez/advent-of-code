@@ -1,29 +1,71 @@
-pub fn process_part1(input: &str) -> u32 {
+use itertools::Itertools;
+
+trait TopN<T> {
+    fn top_n(self, n: usize) -> Vec<T>;
+}
+
+impl<T: PartialOrd, U: Iterator<Item = T>> TopN<T> for U {
+    fn top_n(self, n: usize) -> Vec<T> {
+        let mut top = Vec::with_capacity(n);
+        
+        for value in self {
+            for i in 0..n {
+                if let Some(top_value) = top.get(i) {
+                    if value > *top_value {
+                        top[i..].rotate_right(1);
+                        top[i] = value;
+                        break;
+                    }
+                } else {
+                    top.push(value);
+                    break;
+                }
+            }
+        }
+        top
+    }
+}
+
+pub fn process_part1(input: &str) -> u64 {
     input
         .split("\n\n")
         .map(|elf_load| {
             elf_load
                 .lines()
-                .map(|item| item.parse::<u32>().unwrap())
-                .sum::<u32>()
+                .map(|item| item.parse::<u64>().unwrap())
+                .sum::<u64>()
         })
         .max()
         .unwrap()
 }
 
-pub fn process_part2(input: &str) -> u32 {
-    let mut result = input
+pub fn process_part2_itertools(input: &str) -> u64 {
+    input
         .split("\n\n")
         .map(|elf_load| {
             elf_load
                 .lines()
-                .map(|item| item.parse::<u32>().unwrap())
-                .sum::<u32>()
+                .map(|item| item.parse::<u64>().unwrap())
+                .sum::<u64>()
         })
-        .collect::<Vec<_>>();
+        .sorted()
+        .rev()
+        .take(3)
+        .sum()
+}
 
-    result.sort_by(|a, b| b.cmp(a));
-    result.iter().take(3).sum()
+pub fn process_part2_no_sort(input: &str) -> u64 {
+    input
+        .split("\n\n")
+        .map(|elf_load| {
+            elf_load
+                .lines()
+                .map(|item| item.parse::<u64>().unwrap())
+                .sum::<u64>()
+        })
+        .top_n(3)
+        .iter()
+        .sum()
 }
 
 #[cfg(test)]
@@ -52,8 +94,14 @@ mod tests {
     }
 
     #[test]
-    fn part_2_works() {
-        let result = process_part2(INPUT);
+    fn part_2_itertools_works() {
+        let result = process_part2_itertools(INPUT);
+        assert_eq!(result, 45000);
+    }
+
+    #[test]
+    fn part_2_no_sort_works() {
+        let result = process_part2_no_sort(INPUT);
         assert_eq!(result, 45000);
     }
 }
