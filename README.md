@@ -54,6 +54,14 @@ members = [
 ]
 ```
 
+## How to run benchmarks
+
+To get for example the benchmark result ofday 1, run:
+
+```bash
+cargo bench --package y2022day01
+```
+
 ## License
 
 Licensed under [MIT License](LICENSE).
