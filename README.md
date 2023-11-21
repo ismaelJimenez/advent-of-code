@@ -13,3 +13,7 @@ And create inside the bin the binaries. Then run binary as
 ```shell
 cargo run --bin part-1 
 ```
+
+## Others
+
+See also `https://github.com/lmammino/rust-advent``
