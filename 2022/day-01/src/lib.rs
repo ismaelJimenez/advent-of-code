@@ -1,5 +1,3 @@
-use std::result;
-
 pub fn process_part1(input: &str) -> u32 {
     input
         .split("\n\n")
