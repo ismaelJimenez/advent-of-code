@@ -1,4 +1,6 @@
-# advent-of-code
+# advent-of-code 🦀
+
+[![Rust](https://github.com/ismaelJimenez/advent-of-code/actions/workflows/rust.yml/badge.svg)](https://github.com/ismaelJimenez/advent-of-code/actions/workflows/rust.yml)
 
 ## Create new project
 ```shell
