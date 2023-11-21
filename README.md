@@ -16,4 +16,4 @@ cargo run --bin part-1
 
 ## Others
 
-See also `https://github.com/lmammino/rust-advent``
+See also `https://github.com/lmammino/rust-advent`
