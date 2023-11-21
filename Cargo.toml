@@ -1,0 +1,8 @@
+[workspace]
+members = [
+  "2022/day-01",
+  "2022/day-02",
+]
+
+[profile.bench]
+debug = true

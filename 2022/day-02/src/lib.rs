@@ -103,6 +103,6 @@ C Z";
     #[test]
     fn part_2_works() {
         let result = process_part2(INPUT);
-        assert_eq!(result, 45000);
+        assert_eq!(result, 12);
     }
 }
