@@ -1,89 +1,181 @@
-use std::{cmp::Ordering, str::FromStr};
+use std::str::FromStr;
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(Copy, Clone)]
 enum Move {
-    Rock = 1,
-    Paper = 2,
-    Scissors = 3,
+    Rock,
+    Paper,
+    Scissors,
 }
 
-impl PartialOrd for Move {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        if self == &Move::Scissors && other == &Move::Rock {
-            Some(Ordering::Less)
-        } else if self == &Move::Rock && other == &Move::Scissors {
-            Some(Ordering::Greater)
-        } else {
-            Some((*self as u8).cmp(&(*other as u8)))
+impl Move {
+    fn from_opponent_char(input: &str) -> Result<Self, &'static str> {
+        match input {
+            "A" => Ok(Move::Rock),
+            "B" => Ok(Move::Paper),
+            "C" => Ok(Move::Scissors),
+            _ => Err("Unrecognized {input} move"),
+        }
+    }
+
+    fn from_player_char(input: &str) -> Result<Self, &'static str> {
+        match input {
+            "X" => Ok(Move::Rock),
+            "Y" => Ok(Move::Paper),
+            "Z" => Ok(Move::Scissors),
+            _ => Err("Unrecognized {input} move"),
+        }
+    }
+
+    fn score(&self) -> u64 {
+        match self {
+            Move::Rock => 1,
+            Move::Paper => 2,
+            Move::Scissors => 3,
+        }
+    }
+
+    fn for_outcome(&self, outcome: Outcome) -> Move {
+        use Move::*;
+        use Outcome::*;
+
+        match (self, outcome) {
+            (x, Draw) => *x,
+            (Rock, Win) => Paper,
+            (Paper, Win) => Scissors,
+            (Scissors, Win) => Rock,
+            (Rock, Lose) => Scissors,
+            (Paper, Lose) => Rock,
+            (Scissors, Lose) => Paper,
         }
     }
 }
 
-impl FromStr for Move {
+enum Outcome {
+    Win,
+    Lose,
+    Draw,
+}
+
+impl FromStr for Outcome {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "A" | "X" => Ok(Move::Rock),
-            "B" | "Y" => Ok(Move::Paper),
-            "C" | "Z" => Ok(Move::Scissors),
-            _ => Err("Not a known move".to_string()),
+            "X" => Ok(Outcome::Lose),
+            "Y" => Ok(Outcome::Draw),
+            "Z" => Ok(Outcome::Win),
+            _ => Err("Invalid char {c}".to_string()),
         }
     }
 }
 
-pub fn process_part1(input: &str) -> u32 {
-    let result: u32 = input
-        .lines()
-        .map(|line| {
-            let moves: Vec<Move> = line
-                .split_whitespace()
-                .map(|s| s.parse::<Move>().unwrap())
-                .collect();
-            match moves[0].partial_cmp(&moves[1]) {
-                Some(Ordering::Equal) => 3 + moves[1] as u32,
-                Some(Ordering::Less) => 6 + moves[1] as u32,
-                Some(Ordering::Greater) => 0 + moves[1] as u32,
-                None => {
-                    panic!("moves should be comparable")
-                }
-            }
-        })
-        .sum();
-    result
+impl Outcome {
+    fn score(&self) -> u64 {
+        match self {
+            Outcome::Win => 6,
+            Outcome::Draw => 3,
+            Outcome::Lose => 0,
+        }
+    }
 }
 
-pub fn process_part2(input: &str) -> u32 {
-    let result: u32 = input
+struct Match {
+    oponnent: Move,
+    player: Move,
+}
+
+impl FromStr for Match {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if let Some((oponnent, player)) = s.split_once(' ') {
+            return Ok(Match {
+                oponnent: Move::from_opponent_char(oponnent).unwrap(),
+                player: Move::from_player_char(player).unwrap(),
+            });
+        }
+
+        return Err("Cannot parse line {line}".to_string());
+    }
+}
+
+impl Match {
+    fn from_line_with_outcome(s: &str) -> Result<Self, &'static str> {
+        if let Some((oponnent, player)) = s.split_once(' ') {
+            let opponent_move = Move::from_opponent_char(oponnent).unwrap();
+
+            return Ok(Match {
+                oponnent: opponent_move,
+                player: Move::for_outcome(&opponent_move, player.parse::<Outcome>().unwrap()),
+            });
+        }
+
+        return Err("Cannot parse line {line}");
+    }
+
+    fn outcome(&self) -> Outcome {
+        use Move::*;
+        use Outcome::*;
+
+        match self {
+            Match {
+                oponnent: Rock,
+                player: Rock,
+            } => Draw,
+            Match {
+                oponnent: Paper,
+                player: Paper,
+            } => Draw,
+            Match {
+                oponnent: Scissors,
+                player: Scissors,
+            } => Draw,
+            Match {
+                oponnent: Rock,
+                player: Paper,
+            } => Win,
+            Match {
+                oponnent: Paper,
+                player: Rock,
+            } => Lose,
+            Match {
+                oponnent: Scissors,
+                player: Rock,
+            } => Win,
+            Match {
+                oponnent: Rock,
+                player: Scissors,
+            } => Lose,
+            Match {
+                oponnent: Paper,
+                player: Scissors,
+            } => Win,
+            Match {
+                oponnent: Scissors,
+                player: Paper,
+            } => Lose,
+        }
+    }
+}
+
+pub fn part1(input: &str) -> u64 {
+    input
         .lines()
         .map(|line| {
-            let moves: Vec<&str> = line.split(" ").collect();
-            let opponent_move = moves[0].parse::<Move>().unwrap();
-            match moves[1] {
-                "X" => {
-                    let our_move = match opponent_move {
-                        Move::Rock => Move::Scissors,
-                        Move::Paper => Move::Rock,
-                        Move::Scissors => Move::Paper,
-                    };
-                    0 + our_move as u32
-                }
-                "Y" => 3 + opponent_move as u32,
-                "Z" => {
-                    let our_move = match opponent_move {
-                        Move::Rock => Move::Paper,
-                        Move::Paper => Move::Scissors,
-                        Move::Scissors => Move::Rock,
-                    };
-                    6 + our_move as u32
-                }
-                _ => {
-                    panic!("Unexpected response");
-                }
-            }
+            let m = line.parse::<Match>().unwrap();
+            m.outcome().score() + m.player.score()
         })
-        .sum();
-    result
+        .sum()
+}
+
+pub fn part2(input: &str) -> u64 {
+    input
+        .lines()
+        .map(|line| {
+            let m = Match::from_line_with_outcome(line).unwrap();
+            m.outcome().score() + m.player.score()
+        })
+        .sum()
 }
 
 #[cfg(test)]
@@ -96,13 +188,13 @@ C Z";
 
     #[test]
     fn part_1_works() {
-        let result = process_part1(INPUT);
+        let result = part1(INPUT);
         assert_eq!(result, 15);
     }
 
     #[test]
     fn part_2_works() {
-        let result = process_part2(INPUT);
+        let result = part2(INPUT);
         assert_eq!(result, 12);
     }
 }

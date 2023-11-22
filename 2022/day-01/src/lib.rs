@@ -26,7 +26,7 @@ impl<T: PartialOrd, U: Iterator<Item = T>> TopN<T> for U {
     }
 }
 
-pub fn process_part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> u64 {
     input
         .split("\n\n")
         .map(|elf_load| {
@@ -39,7 +39,7 @@ pub fn process_part1(input: &str) -> u64 {
         .unwrap()
 }
 
-pub fn process_part2_itertools(input: &str) -> u64 {
+pub fn part2_itertools(input: &str) -> u64 {
     input
         .split("\n\n")
         .map(|elf_load| {
@@ -54,7 +54,7 @@ pub fn process_part2_itertools(input: &str) -> u64 {
         .sum()
 }
 
-pub fn process_part2_no_sort(input: &str) -> u64 {
+pub fn part2_no_sort(input: &str) -> u64 {
     input
         .split("\n\n")
         .map(|elf_load| {
@@ -89,19 +89,19 @@ mod tests {
 
     #[test]
     fn part_1_works() {
-        let result = process_part1(INPUT);
+        let result = part1(INPUT);
         assert_eq!(result, 24000);
     }
 
     #[test]
     fn part_2_itertools_works() {
-        let result = process_part2_itertools(INPUT);
+        let result = part2_itertools(INPUT);
         assert_eq!(result, 45000);
     }
 
     #[test]
     fn part_2_no_sort_works() {
-        let result = process_part2_no_sort(INPUT);
+        let result = part2_no_sort(INPUT);
         assert_eq!(result, 45000);
     }
 }
