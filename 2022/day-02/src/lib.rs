@@ -95,7 +95,7 @@ impl FromStr for Match {
             });
         }
 
-        return Err("Cannot parse line {line}".to_string());
+        Err("Cannot parse line {line}".to_string())
     }
 }
 
@@ -110,7 +110,7 @@ impl Match {
             });
         }
 
-        return Err("Cannot parse line {line}");
+        Err("Cannot parse line {line}")
     }
 
     fn outcome(&self) -> Outcome {

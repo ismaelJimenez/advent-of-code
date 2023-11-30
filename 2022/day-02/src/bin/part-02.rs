@@ -2,5 +2,5 @@ use y2022day02::part2;
 
 fn main() {
     let file = include_str!("../../input.txt");
-    println!("{}", part2(&file));
+    println!("{}", part2(file));
 }

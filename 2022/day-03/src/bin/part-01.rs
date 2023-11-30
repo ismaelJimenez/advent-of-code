@@ -1,4 +1,4 @@
-use y2022day02::part1;
+use y2022day03::part1;
 
 fn main() {
     let file = include_str!("../../input.txt");
